@@ -1,26 +1,16 @@
 import praw
-import logging
 from collections import namedtuple
 from contextlib import contextmanager
 from datetime import datetime, date, timezone, timedelta
 import dateutil.parser as dateutil_parser
 from json import dump, load, JSONDecoder, JSONEncoder
 
+from common import enable_logging
 
 Post = namedtuple("Post", ("id", "date", "permalink", "title", "url"))
 
-
-def _enable_logging(logger_name="prawcore", level=logging.DEBUG):
-    handler = logging.StreamHandler()
-    handler.setLevel(level)
-    logger = logging.getLogger(logger_name)
-    logger.setLevel(level)
-    logger.addHandler(handler)
-    return logger
-
-
-_enable_logging()
-log = _enable_logging(logger_name=__name__)
+enable_logging("prawcore")
+log = enable_logging()
 
 reddit = praw.Reddit(client_id="ljUsVQ0ChTw8AQ",
                      client_secret="wtjGEdkz4tRfsEHBWo4bH8YzBW8",
