@@ -1,10 +1,12 @@
 import logging
+import sys
 
 
 def enable_logging(logger_name=__name__, level=logging.DEBUG):
-    handler = logging.StreamHandler()
-    handler.setLevel(level)
+    logging.basicConfig(level=level,
+                        stream=sys.stdout,
+                        format="%(asctime)s %(name)s %(levelname)s %(message)s",
+                        datefmt="%Y-%m-%d %H:%M:%S")
     logger = logging.getLogger(logger_name)
-    logger.setLevel(level)
-    logger.addHandler(handler)
+    # logger.setLevel(level)
     return logger

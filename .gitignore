@@ -1,5 +1,5 @@
 ### Script outputs
-downloader/*.json
+*.json
 
 ### IntelliJ project files
 .idea
