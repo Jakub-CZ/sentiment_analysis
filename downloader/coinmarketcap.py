@@ -1,10 +1,13 @@
 import json
 import urllib.request
+from typing import Dict
+
+import os
 
 from common import enable_logging
 
 log = enable_logging("downloader.coinmarketcap")
-coinlist_file = "coinlist2.json"
+coinlist_file = "coinlist.json"
 
 
 def download_top_coins():
@@ -15,7 +18,10 @@ def download_top_coins():
         json.dump(data, f, indent=2)
 
 
-def get_top_coins():
+def get_top_coins() -> Dict[str, str]:
+    """Mapping cryptocurrency symbols to names"""
+    if not os.path.exists(coinlist_file):
+        download_top_coins()
     with open(coinlist_file, "r") as f:
         coins = json.load(f)
     return {c["symbol"]: c["name"] for c in coins}
