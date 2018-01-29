@@ -46,9 +46,9 @@ def iter_unseen_posts(listing, seen):
     """Updates 'seen' with new posts."""
     for post in listing:
         if post.id in seen or post.stickied:
-            print("- ignoring: %s" % post.title)
+            log.debug("ignoring: %s" % post.title)
             continue
-        print("      NEW : %s" % post.title)
+        log.info(" === [%s]" % post.title)
         p = Post(id=post.id, date=datetime.fromtimestamp(post.created_utc, timezone.utc),
                  permalink=post.permalink, title=post.title, url=post.url)
         yield p
