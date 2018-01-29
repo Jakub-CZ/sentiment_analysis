@@ -1,6 +1,7 @@
 import json
 from typing import List, Dict
 
+import os
 from nltk import word_tokenize
 from nltk.sentiment.vader import SentimentIntensityAnalyzer as SIA
 
@@ -16,15 +17,16 @@ def analyze_posts(posts):
     all_coins = get_top_coins()
     all_coin_names = {n.lower(): n for n in all_coins.values()}
     analysis = []  # type: List[Dict]
+    analysis_file = os.path.realpath("analysis.json")
+    log.info("Opening '%s'" % analysis_file)
     try:
-        with open("analysis.json", "r") as f:
+        with open(analysis_file, "r") as f:
             analysis = json.load(f)
     except FileNotFoundError as e:
         log.warning("Error while trying to load previous analysis:\n%s" % e)
     for post in posts:
         # TODO: filter out some flairs
         title = post.title
-        log.info(title)
         words = word_tokenize(title)
         related_coins = set()
         for w in words:
@@ -46,10 +48,10 @@ def analyze_posts(posts):
                          "sentiment_title": sentiment_title["compound"],
                          "sentiment_body": sentiment_body.get("compound")})
     analysis_json = json.dumps(analysis, cls=DateTimeEncoder, indent=2)
-    with open("analysis.json", "w") as f:
+    with open(analysis_file, "w") as f:
         f.write(analysis_json)
 
 
 if __name__ == '__main__':
-    with unseen_hot_posts(50, "seen.json") as posts:
+    with unseen_hot_posts(50, os.path.realpath("seen.json")) as posts:
         analyze_posts(posts)

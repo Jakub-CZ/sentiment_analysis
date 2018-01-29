@@ -1,13 +1,12 @@
 import json
+import os
 import urllib.request
 from typing import Dict
-
-import os
 
 from common import enable_logging
 
 log = enable_logging("downloader.coinmarketcap")
-coinlist_file = "coinlist.json"
+coinlist_file = os.path.realpath("coinlist.json")
 
 
 def download_top_coins():
