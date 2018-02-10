@@ -26,30 +26,34 @@ def analyze_posts(posts):
         log.warning("Error while trying to load previous analysis:\n%s" % e)
     for post in posts:
         # TODO: filter out some flairs
-        title = post.title
-        words = word_tokenize(title)
-        related_coins = set()
-        for w in words:
-            if w.isupper() and w in all_coins:
-                related_coins.add(all_coins[w])
-                log.debug(w)
-            elif w.lower() in all_coin_names:
-                related_coins.add(all_coin_names[w.lower()])
-                log.debug(w)
-        log.info(related_coins)
-        sentiment_title = sia.polarity_scores(title)
-        log.info(sentiment_title)
-        body = reddit.submission(post.id).selftext
-        sentiment_body = {}
-        if len(body) > 16:
-            sentiment_body = sia.polarity_scores(body)
-            log.info(sentiment_body)
-        analysis.append({"post": post, "body": body, "coins": list(related_coins),
-                         "sentiment_title": sentiment_title["compound"],
-                         "sentiment_body": sentiment_body.get("compound")})
+        analysis.append(analyze_post(post, all_coins, all_coin_names))
     analysis_json = json.dumps(analysis, cls=DateTimeEncoder, indent=2)
     with open(analysis_file, "w") as f:
         f.write(analysis_json)
+
+
+def analyze_post(post, all_coins, all_coin_names):
+    title = post.title
+    words = word_tokenize(title)
+    related_coins = set()
+    for w in words:
+        if w.isupper() and w in all_coins:
+            related_coins.add(all_coins[w])
+            log.debug(w)
+        elif w.lower() in all_coin_names:
+            related_coins.add(all_coin_names[w.lower()])
+            log.debug(w)
+    log.info(related_coins)
+    sentiment_title = sia.polarity_scores(title)
+    log.info(sentiment_title)
+    body = reddit.submission(post.id).selftext
+    sentiment_body = {}
+    if len(body) > 16:
+        sentiment_body = sia.polarity_scores(body)
+        log.info(sentiment_body)
+    return {"post": post, "body": body, "coins": list(related_coins),
+            "sentiment_title": sentiment_title["compound"],
+            "sentiment_body": sentiment_body.get("compound")}
 
 
 if __name__ == '__main__':
