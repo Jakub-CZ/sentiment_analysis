@@ -26,6 +26,15 @@ class Post(namedtuple("Post", ("id", "date", "permalink", "title", "url"))):
             args[1] = _date
         return super(Post, cls).__new__(cls, *args, **kwargs)
 
+    @staticmethod
+    def from_id(post_id):
+        return Post.from_reddit_submission(reddit.submission(post_id))
+
+    @staticmethod
+    def from_reddit_submission(post):
+        return Post(id=post.id, date=datetime.fromtimestamp(post.created_utc, timezone.utc),
+                    permalink=post.permalink, title=post.title, url=post.url)
+
 
 enable_logging("prawcore")
 log = enable_logging("downloader.reddit")
@@ -49,8 +58,7 @@ def iter_unseen_posts(listing, seen):
             log.debug("ignoring: %s" % post.title)
             continue
         log.info(" === [%s]" % post.title)
-        p = Post(id=post.id, date=datetime.fromtimestamp(post.created_utc, timezone.utc),
-                 permalink=post.permalink, title=post.title, url=post.url)
+        p = Post.from_reddit_submission(post)
         yield p
         seen[p.id] = p.date
 
