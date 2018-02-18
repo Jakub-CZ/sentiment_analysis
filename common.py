@@ -12,17 +12,13 @@ def enable_logging(logger_name=__name__, level=logging.DEBUG):
     return logger
 
 
-# TODO: implement re-analysis of old results in 'analysis.json'
 # TODO: Mask 'Ledger Nano'
 def main():
     import os, json
-    from downloader.coinmarketcap import get_top_coins
+    from downloader.coinmarketcap import get_coin_mappings
 
     log = enable_logging("analyze")
-    all_coins = get_top_coins()  # symbol -> name
-    all_coin_names = {n.lower(): s for s, n in all_coins.items()}  # lower case name -> symbol
-    all_coin_names["raiblocks"] = "XRB"
-    all_coin_names_lower_sorted_by_len = sorted(all_coin_names, key=len, reverse=True)
+    all_coins, all_coin_names, all_coin_names_lower_sorted_by_len = get_coin_mappings()
 
     from pprint import pprint
     from collections import namedtuple
@@ -33,14 +29,14 @@ def main():
     diffs = []
     for d in analysis:
         title = d["post"][3]
-        old_coins = set(all_coin_names[name.lower()] for name in d["coins"])
-        a = analyze_post(FakePost(title), all_coins, all_coin_names, all_coin_names_lower_sorted_by_len,
-                         get_body=False)
+        old_coins = set(all_coin_names.get(name.lower()) or name.lower() for name in d["coins"])
+        a = analyze_post(FakePost(title), all_coins, all_coin_names, all_coin_names_lower_sorted_by_len, _body="")
         new_coins = set(a["coins"])
         diff = new_coins.symmetric_difference(old_coins)
-        if diff:
+        if diff and diff not in [{'XRB'}] and "WTC" not in diff:
             diffs.append("%s\n  Old: %s \t New: %s\n Diff: %s" % (title, old_coins, new_coins, diff))
     print("\n".join(diffs))
+    print("Total diffs: %d" % len(diffs))
 
     ###############
     # for c1 in all_coins.values():
