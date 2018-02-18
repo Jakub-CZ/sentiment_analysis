@@ -20,6 +20,7 @@ def download_top_coins(limit=200):
 
 def get_top_coins() -> Dict[str, str]:
     """Mapping cryptocurrency symbols to names"""
+    # TODO: redownload periodically, but keep old if it failed
     if not os.path.exists(coinlist_file):
         download_top_coins()
     with open(coinlist_file, "r") as f:
